@@ -12,21 +12,19 @@ aantal_decimalen_tijd = 2
 print_de_resulterende_lijst = 0
 maxkental = 5
 totaal_aantal_botsingen = 0
-p = 0.1
 
 #Settings. Deze kan je veranderen
-kans_op_Xenon135_ontstaat = 0.2
+kans_op_Xenon135_ontstaat = 0.05
 kans_op_nieuwe_neutron_ontstaat = 0.0
 #Minder Belangrijke Settings
 toon_settings = True
-tijd_stappen = 200
+tijd_stappen = 100
 
-'Edit deze!!!'
-doel_neutron_aantal = 100
+doel_neutron_aantal = 150
 
-lengte_van_reactor = int(10**2) #Lengte van een zijde van de reactor in U-kernen. Er zijn dus lengte_van_reactor^3 U-kernen in de reactor
-start_neutron_aantal = int(doel_neutron_aantal * 1)
-kans_op_nieuwe_neutron_ontstaat = 0
+lengte_van_reactor = int(10**1.75) #Lengte van een zijde van de reactor in U-kernen. Er zijn dus lengte_van_reactor^3 U-kernen in de reactor
+start_neutron_aantal = int(10**2)
+kans_op_nieuwe_neutron_ontstaat = 0.05
 start_uranium235_hoeveelheid = int((lengte_van_reactor ** 3) * 0.02)
 if toon_settings:
     print('Dit zijn de settings:')
@@ -34,7 +32,6 @@ if toon_settings:
     print(f'maxkental: {maxkental}')
     print(f'tijd_stappen: {tijd_stappen}')
     print(f'start_neutron_aantal: {start_neutron_aantal}')
-    print(f'doel_neutron_aantal: {doel_neutron_aantal}')
     print(f'start_uranium235_hoeveelheid: {start_uranium235_hoeveelheid}')
     print('')
 
@@ -43,12 +40,7 @@ lijst_neutron = []
 lijst_uranium235 = []
 lijst_Xenon135 = []
 aantal_neutronen_lijst = []
-aantal_xenon135_lijst = []
 lijst_van_tijden = []
-lijst_q = []
-lijst_p = []
-lijst_doel_neutron_aantal = []
-
 
 #Functie defineren
 def afstand_punt_tot_vector(lijst_neutron, neutron_index, lijst_die_gecheckt_wordt):
@@ -65,7 +57,6 @@ def afstand_punt_tot_vector(lijst_neutron, neutron_index, lijst_die_gecheckt_wor
         zpunt = lijst_neutron[neutron_index][2] - lijst_die_gecheckt_wordt[object_index][2]
 
         kwadraat_snelheid = xvector ** 2 + yvector ** 2 + zvector ** 2
-        #kwadraat_snelheid = lijst_neutron[neutron_index][7] 
         kwadaat_afstand_punt_tot_oorsprong = xpunt**2 + ypunt**2 + zpunt**2
         inproduct = xvector * xpunt + yvector * ypunt + zvector * zpunt
 
@@ -143,12 +134,10 @@ for object_index in range(start_neutron_aantal):
     random.choice([random.randint(-maxkental,-1),random.randint(1,maxkental)]),
     random.choice([random.randint(-maxkental,-1),random.randint(1,maxkental)]),
     random.choice([random.randint(-maxkental,-1),random.randint(1,maxkental)]),
-    0
+
     #Hoe lang staat deze neutron in 'slaapstand'
-    #0 betekent dat de neutron direct behandeld moet worden
-    ])
-    #De kwadraat van de snelheid van deze neutron is belangrijk voor de botsingen. Daarom berekenen we deze alvast.
-    #lijst_neutron[object_index].append(lijst_neutron[object_index][3] ** 2 + lijst_neutron[object_index][4] ** 2 + lijst_neutron[object_index][5] ** 2)
+    0  #0 betekent dat de neutron direct behandeld moet worden
+])
 print('Klaar met alle neutronen toevoegen')
 #Yapverhaal
 '''
@@ -167,78 +156,33 @@ for object_index in range (start_uranium235_hoeveelheid):
     #Uranium beweegt niet dus vandaar geen bewegingsvector
     ])
 
-for _ in range(400):
-    lijst_Xenon135.append([
-    #Deze drie waardes zijn x,y,z coordinaten
-    random.randint(1, lengte_van_reactor + 1),
-    random.randint(1, lengte_van_reactor + 1),
-    random.randint(1, lengte_van_reactor + 1)
-    #Xenon135 beweegt niet dus vandaar geen bewegingsvector
-    ])
 print('Klaar met alle U235 kernen toevoegen')
 print('')
 aantal_neutronen_lijst_verschil = []
 #Hier start de daadwerkelijke simulatie
-for tijd in range(tijd_stappen):
-    
-    #if tijd%100 == 0:
-    #    #doel_neutron_aantal += 50
-        
-    if tijd == 100:
-        print('We gaan extra Xenon135 kernen toevoegen')
-        for _ in range(len(lijst_Xenon135)):
-            lijst_Xenon135.append([
-                random.randint(1, lengte_van_reactor + 1),
-                random.randint(1, lengte_van_reactor + 1),
-                random.randint(1, lengte_van_reactor + 1),
-            ])
-    #if tijd == 200:
-    #    doel_neutron_aantal = 200
-    
+for tijd in range(tijd_stappen):  
+
     #Informatie Printen  
     print(f'Tijdstap {tijd} wordt behandeld')
     print('')
     
     #Dit is nodig om de grafieken te maken 
     aantal_neutronen_lijst.append(len(lijst_neutron))
-    aantal_xenon135_lijst.append(len(lijst_Xenon135))
     lijst_van_tijden.append(tijd)
     aantal_neutronen_lijst_verschil.append(len(lijst_neutron) - aantal_neutronen_lijst[tijd-1] if tijd > 0 else len(lijst_neutron))
-    lijst_doel_neutron_aantal.append(doel_neutron_aantal)
     
-
-    q = (len(lijst_neutron) - doel_neutron_aantal)/doel_neutron_aantal
-    #Oude formules voor P(Q), worden hier niet gebruikt
-    #p = -1 * math.log((q + 0.01),2) if (q + 0.01) > 0 else 0
-    #p = 1 - (q + 0.01) 
-    #p = 2 * q
-    #p = math.exp(q) - 1,
-    #p = -100 * x
-    #p = 1 * q + 0.1
-    #p = 0.5/(1 + math.exp(1.5 - 5 * q))
-    oude_p = p
-    p = 70 * q ** 3 + 0.072
-    #if p > oude_p * 1.1:
-    #    p = oude_p * 1.3
-    #
-    #if p < oude_p * 0.9:
-    #    p = oude_p * 0.9
-
-    if p > 1:
-        p = 0.9   
+    x = (len(lijst_neutron) - doel_neutron_aantal)/doel_neutron_aantal
+    p = (-100) * x + 1 #Some function of x
+    
+    
     if p < 0:
         p = 0
-    
-    lijst_q.append(q)  
-    lijst_p.append(p)  
-    
+    elif p > 1:
+        p = 1
+    if tijd > 50:
+        p=1
     #Elke neutron behandelen
     for neutron_index in range (len(lijst_neutron) - 1,-1,-1):
-        #print(f'Behandel neutron {neutron_index}')    
-        if p > random.random():
-            del lijst_neutron[neutron_index]
-            continue
-            
         if lijst_neutron[neutron_index][6] == 0:
             #Deze neutron staat dus niet in slaapstand. Daarom behandelen we deze neutron voor botsingen met uranium235 kernen
             minimale_positieve_t, object_met_minimale_afstand_in_toekomst, _, _ = (
@@ -246,36 +190,35 @@ for tijd in range(tijd_stappen):
             
             if minimale_positieve_t is None:
                 lijst_neutron[neutron_index][6] = 2^32
-                '''
-                De neutron zal voorlopig niet botsen. We behandelen deze voorlopig niet meer, tot deze reflecteert. 
-                Dan verandert de lijn waarop de neiutron beweegt, en kan de nuetron dus botsen met andere kernen
-                '''
 
             elif 0 <= minimale_positieve_t <= 1:
                 totaal_aantal_botsingen += 1
                 #Deze neutron botst met een uranium235 kern
-                for _ in range(random.choice([2,3])):      #Voeg nieuwe neutronen toe.
-                    lijst_neutron.append([
-                                lijst_neutron[neutron_index][0],
-                                lijst_neutron[neutron_index][1],
-                                lijst_neutron[neutron_index][2],
-                                random.uniform(-maxkental, maxkental),
-                                random.uniform(-maxkental, maxkental),
-                                random.uniform(-maxkental, maxkental),
-                                0])
-                    #lijst_neutron[len(lijst_neutron) - 1].append(lijst_neutron[neutron_index][3] ** 2 + lijst_neutron[neutron_index][4] ** 2 + lijst_neutron[neutron_index][5] ** 2)
-                lijst_uranium235.append([
-                random.randint(1, lengte_van_reactor + 1),
-                random.randint(1, lengte_van_reactor + 1),
-                random.randint(1, lengte_van_reactor + 1)])
-                #Voeg Xenon135 toe
-                if random.random() < kans_op_Xenon135_ontstaat:
-                    lijst_Xenon135.append(lijst_uranium235[object_met_minimale_afstand_in_toekomst])
-     
+                if p > random.random():
+                    #Fissie vindt plaats
+                    for _ in range(random.choice([2,3])):      #Voeg nieuwe neutronen toe.
+                        lijst_neutron.append([
+                                    lijst_neutron[neutron_index][0],
+                                    lijst_neutron[neutron_index][1],
+                                    lijst_neutron[neutron_index][2],
+                                    random.uniform(-maxkental, maxkental),
+                                    random.uniform(-maxkental, maxkental),
+                                    random.uniform(-maxkental, maxkental),
+                                    0])
+                    lijst_uranium235.append([
+                    random.randint(1, lengte_van_reactor + 1),
+                    random.randint(1, lengte_van_reactor + 1),
+                    random.randint(1, lengte_van_reactor + 1)])
+
+                    #Voeg Xenon135 toe
+                    if random.random() < kans_op_Xenon135_ontstaat:
+                        lijst_Xenon135.append(lijst_uranium235[object_met_minimale_afstand_in_toekomst])
+                        
+                    del lijst_uranium235[object_met_minimale_afstand_in_toekomst]
+
+
                 #Verwijder de oude neutronen en U235 kernen
                 del lijst_neutron[neutron_index] 
-                del lijst_uranium235[object_met_minimale_afstand_in_toekomst]
-
                 continue
             
             elif minimale_positieve_t > 1:
@@ -341,7 +284,7 @@ for tijd in range(tijd_stappen):
             lijst_neutron[neutron_index][6] = 0
             _, _, minimale_negatieve_t, object_met_minimale_afstand_in_verleden = (
                 afstand_punt_tot_vector(lijst_neutron, neutron_index, lijst_uranium235))
-            if minimale_negatieve_t is not None and -1 < minimale_negatieve_t < 0:
+            if minimale_negatieve_t is not None and -1 < minimale_negatieve_t < 0 and p > random.random():
                 for _ in range(random.choice([2,3])):      #Voeg nieuwe neutronen toe.
                     lijst_neutron.append([
                         lijst_neutron[neutron_index][0],
@@ -351,9 +294,7 @@ for tijd in range(tijd_stappen):
                         random.uniform(-maxkental, maxkental),
                         random.uniform(-maxkental, maxkental),
                         0])
-                    #lijst_neutron[len(lijst_neutron) - 1].append(lijst_neutron[neutron_index][3] ** 2 + lijst_neutron[neutron_index][4] ** 2 + lijst_neutron[neutron_index][5] ** 2)
-
-                lijst_uranium235.append([                  #Voeg nieuwe U235 kernen toe
+                lijst_uranium235.append([
                     random.randint(1, lengte_van_reactor + 1),
                     random.randint(1, lengte_van_reactor + 1),
                     random.randint(1, lengte_van_reactor + 1)
@@ -372,11 +313,10 @@ for tijd in range(tijd_stappen):
 
 
     #Deze tijdstip if afgelopen
-    #print(f'Er zijn {len(lijst_uranium235)} uranium kernen ')
+    print(f'Er zijn {len(lijst_uranium235)} uranium kernen ')
     print(f'Er zijn {len(lijst_Xenon135)} Xenon135 kernen ')
     print(f'Er zijn {len(lijst_neutron)} neutronen ')
 
-    #Uraniumkeren regeneren, dus dit zal nooit voorkomen. Overblijfsel van vorige versies.
     if len(lijst_uranium235) == 0:
         #De simulatie is dus afgelopen
         print('')
@@ -410,50 +350,13 @@ print(f'Er is {energie_vrijgekomen_in_GeV} GeV aan energie vrij gekomen')
 print(f'Er is {energie_vrijgekomen_in_J} J aan energie vrij gekomen')
 print(f'Je hebt {start_uranium235_hoeveelheid} uranium235 kernen gemodelleerd')
 print(f'In een hele RBMK1000 reactor zou {(765 / m3) * energie_vrijgekomen_in_J} J aan energie vrijkomen')
-print(f'De gemiddelde waarde van q was {round(sum(lijst_q)/len(lijst_q), 4)}')
-print(f'De gemiddelde aantan Xe135 kernen was {round(sum(aantal_xenon135_lijst)/len(aantal_xenon135_lijst), 4)}')
-#Grafieken maken
-#Grafiekjes maken
-plt.plot(lijst_van_tijden, aantal_neutronen_lijst)
-plt.axhline(y=doel_neutron_aantal, color='red', linewidth=3, linestyle='-', label='Doel Neutron Aantal')
-plt.xlabel('Tijd')
-plt.ylabel('Aantal Neutronen')
-plt.title('Aantal Neutronen per Tijdseenheid')
-plt.xlim(0, max(lijst_van_tijden))
-if max(aantal_neutronen_lijst) > doel_neutron_aantal:
-    plt.ylim(0, max(aantal_neutronen_lijst) * 1.05)
-else:
-    plt.ylim(0, doel_neutron_aantal * 1.05)
-plt.show()
-plt.plot(lijst_van_tijden, aantal_neutronen_lijst, '-', linewidth=1) 
-plt.axhline(y=doel_neutron_aantal, color='red', linewidth=3, linestyle='-', label='Doel Neutron Aantal')
-plt.xlabel('Tijd')
-plt.ylabel('Aantal Neutronen')
-plt.title('Aantal Neutronen per Tijdseenheid')
-plt.xlim(0, max(lijst_van_tijden))
-if max(aantal_neutronen_lijst) > doel_neutron_aantal:
-    plt.ylim(0, max(aantal_neutronen_lijst) * 1.05)
-else:
-    plt.ylim(0, doel_neutron_aantal * 1.05)
-plt.show()
-plt.scatter(lijst_van_tijden, aantal_xenon135_lijst)  # Faster than scatterplt.xlabel('Tijd')
-plt.ylabel('Aantal Xenon135 Kernen')
-plt.title('Aantal Xenon135 Kernen per Tijdseenheid')
-plt.xlim(0, max(lijst_van_tijden))
-plt.ylim(0, max(aantal_xenon135_lijst))
-plt.show()
-plt.scatter(aantal_neutronen_lijst, aantal_xenon135_lijst)
-plt.xlabel('Aantal Neutronen')
-plt.ylabel('Aantal Xenon135 Kernen')
-plt.title('Aantal Neutronen vs Aantal Xenon135 Kernen')
-plt.xlim(0, max(aantal_neutronen_lijst))
-plt.ylim(0, max(aantal_xenon135_lijst))
-plt.show()
 
-plt.plot(lijst_van_tijden, lijst_p)
-plt.xlabel('Tijd')
-plt.ylabel('P(Q)')
-plt.title('P(Q) per Tijdseenheid')
-plt.xlim(0, max(lijst_van_tijden))
-plt.ylim(0, max(lijst_p))
-plt.show()
+#Grafieken maken
+if True: #Grafiekje maken
+    plt.plot(lijst_van_tijden, aantal_neutronen_lijst)
+    plt.xlabel('Tijd')
+    plt.ylabel('Aantal Neutronen')
+    plt.title('Aantal Neutronen per Tijdseenheid')
+    plt.xlim(0, max(lijst_van_tijden)*1.2)
+    plt.ylim(0, max(aantal_neutronen_lijst)*1.2)
+    plt.show()
